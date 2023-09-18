@@ -26,8 +26,7 @@
  * Host follows after a successful ACK response with <update_len> bytes.
  * Main firmware finally returns a status byte, 0 on success. */
 #define CMD_UPDATE          1
-/* CMD_SEEK, length=3-4, cyl#. Seek to cyl# on selected drive.
- * cyl# is signed: length=3 => int8_t cyl#; length=4 => int16_t cyl# */
+/* CMD_SEEK, length=3 or 4, cyl#. Seek to cyl# on selected drive. */
 #define CMD_SEEK            2
 /* CMD_HEAD, length=3, head# (0=bottom) */
 #define CMD_HEAD            3
