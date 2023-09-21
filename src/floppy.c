@@ -1518,13 +1518,17 @@ static void process_command(void)
         break;
     }
     case CMD_GET_PARAMS: {
-        uint8_t idx = u_buf[2];
-        uint8_t nr = u_buf[3];
-        if ((len != 4) || (idx != PARAMS_DELAYS)
-            || (nr > sizeof(delay_params)))
-            goto bad_command;
-        memcpy(&u_buf[2], &delay_params, nr);
-        resp_sz += nr;
+        if (len ==4) {
+            uint8_t idx = u_buf[2];
+            uint8_t nr = u_buf[3];
+            if ((idx == PARAMS_DELAYS) && (nr <= sizeof(delay_params))) {
+                memcpy(&u_buf[2], &delay_params, nr);
+                resp_sz += nr;
+            } else if ((idx == PARAMS_CYLINDERS) && (nr <= sizeof(safe_cylinders_params))) {
+                memcpy(&u_buf[2], &safe_cylinders_params, nr);
+                resp_sz += nr;
+            } else goto bad_command;
+        } else goto bad_command;
         break;
     }
     case CMD_MOTOR: {
