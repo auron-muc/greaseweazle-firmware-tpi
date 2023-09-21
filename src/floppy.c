@@ -45,6 +45,12 @@ static const struct gw_delay factory_delay_params = {
     .watchdog = 10000
 };
 
+static struct gw_safe_cylinders safe_cylinders_params;
+static const struct gw_safe_cylinders factory_safe_cylinders_params = {
+    .min_cylinder = -8,
+    .max_cylinder = 100,
+};
+
 extern uint8_t u_buf[];
 
 #if MCU == STM32F1
@@ -413,7 +419,7 @@ static uint8_t floppy_seek(int cyl)
             return rc;
     }
 
-    if ((cyl < (u->is_flippy ? -80 : 0)) || (cyl > 1000))
+    if ((cyl < (u->is_flippy ? safe_cylinders_params.min_cylinder : 0)) || (cyl > safe_cylinders_params.max_cylinder))
         return ACK_BAD_CYLINDER;
 
     if (u->cyl < cyl) {
@@ -590,6 +596,7 @@ void floppy_init(void)
     IRQx_enable(irq_index);
 
     delay_params = factory_delay_params;
+    safe_cylinders_params = factory_safe_cylinders_params;
 
     _set_bus_type(BUS_NONE);
 }
@@ -1500,11 +1507,14 @@ static void process_command(void)
         break;
     }
     case CMD_SET_PARAMS: {
-        uint8_t idx = u_buf[2];
-        if ((len < 3) || (idx != PARAMS_DELAYS)
-            || (len > (3 + sizeof(delay_params))))
-            goto bad_command;
-        memcpy(&delay_params, &u_buf[3], len-3);
+        if (len >= 3) {
+            uint8_t idx = u_buf[2];
+            if ((idx == PARAMS_DELAYS) && (len <= (3 + sizeof(delay_params)))) {
+                memcpy(&delay_params, &u_buf[3], len-3);
+            } else if ((idx == PARAMS_CYLINDERS) && (len <= (3 + sizeof(safe_cylinders_params)))) {
+                memcpy(&safe_cylinders_params, &u_buf[3], len-3);
+            } else goto bad_command;
+        } else goto bad_command;
         break;
     }
     case CMD_GET_PARAMS: {
@@ -1589,6 +1599,7 @@ static void process_command(void)
         if (len != 2)
             goto bad_command;
         delay_params = factory_delay_params;
+        safe_cylinders_params = factory_safe_cylinders_params;
         _set_bus_type(BUS_NONE);
         reset_user_pins();
         break;

@@ -228,6 +228,13 @@ struct packed gw_delay {
     uint16_t watchdog;     /* msec */
 };
 
+/* CMD_{GET,SET}_PARAMS, index 1 */
+#define PARAMS_CYLINDERS 1
+struct packed gw_safe_cylinders {
+    int16_t cyl_min; /* minimum safe cylinder */
+    int16_t cyl_max; /* maximum safe cylinder */
+};
+
 /* CMD_SWITCH_FW_MODE */
 #define FW_MODE_BOOTLOADER 0
 #define FW_MODE_NORMAL     1
