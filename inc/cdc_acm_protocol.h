@@ -231,8 +231,8 @@ struct packed gw_delay {
 /* CMD_{GET,SET}_PARAMS, index 1 */
 #define PARAMS_CYLINDERS 1
 struct packed gw_safe_cylinders {
-    int16_t cyl_min; /* minimum safe cylinder */
-    int16_t cyl_max; /* maximum safe cylinder */
+    int16_t min_cylinder; /* minimum safe cylinder */
+    int16_t max_cylinder; /* maximum safe cylinder */
 };
 
 /* CMD_SWITCH_FW_MODE */
