@@ -359,7 +359,7 @@ static uint8_t floppy_seek_initialise(struct unit *u)
 
     /* Synchronise to cylinder 0. */
     step_dir_out();
-    for (nr = 0; nr < 256; nr++) {
+    for (nr = 0; nr < safe_cylinders_params.max_cylinder*2; nr++) {
         if (get_trk0() == LOW)
             goto found_cyl0;
         step_once();
@@ -379,7 +379,8 @@ found_cyl0:
          * inwards until the sensor is deasserted. */
         delay_ms(delay_params.seek_settle); /* change of direction */
         step_dir_in();
-        for (nr = 0; nr < 10; nr++) {
+        /* note: min_cylinder is negative */
+        for (nr = 0; nr < -(safe_cylinders_params.min_cylinder*2); nr++) {
             step_once();
             if (get_trk0() == HIGH) {
                 /* We are now at real cylinder 1. */
